@@ -1,0 +1,185 @@
+rule_types:
+  scan_detection:
+    description: "扫描探测类告警"
+    patterns:
+      - "端口扫描"
+      - "扫描探测"
+      - "信息收集"
+      - "常规探测"
+      - "扫描行为"
+      - "目录扫描"
+      - "指纹识别"
+      - "Nmap"
+      - "DirBuster"
+      - "Port Scan"
+      - "Directory Scan"
+  
+  noise_alerts:
+    description: "噪声告警"
+    patterns:
+      - "404 Not Found"
+      - "请求不存在"
+      - "无效URL"
+  
+  false_positive_patterns:
+    description: "误报特征模式"
+    patterns:
+      - "search=O'Neil"
+      - "<b>bold text</b>"
+      - "?command=list"
+      - "normal search with apostrophe"
+
+suppression_rules:
+  - name: "low_risk_scan_non_critical"
+    conditions:
+      - field: "event_type"
+        operator: "contains"
+        value: "@scan_detection"
+      - field: "asset_type"
+        operator: "not_equals"
+        value: "critical"
+      - field: "count"
+        operator: "<"
+        value: 10
+    action: "aggregate_delay"
+    delay_minutes: 15
+  
+  - name: "test_env_scan"
+    conditions:
+      - field: "event_type"
+        operator: "contains"
+        value: "@scan_detection"
+      - field: "asset_type"
+        operator: "equals"
+        value: "test"
+    action: "silence_log"
+    log_file: "low_value_alerts.log"
+  
+  - name: "critical_asset_scan"
+    conditions:
+      - field: "event_type"
+        operator: "contains"
+        value: "@scan_detection"
+      - field: "asset_type"
+        operator: "equals"
+        value: "critical"
+    action: "downgrade"
+    target_level: "L4_LOW"
+    note: "可能为侦察行为，已降级"
+  
+  - name: "high_freq_scan"
+    conditions:
+      - field: "event_type"
+        operator: "contains"
+        value: "@scan_detection"
+      - field: "count"
+        operator: ">="
+        value: 10
+    action: "escalate"
+    target_level: "L3_MEDIUM"
+  
+  - name: "noise_suppress"
+    conditions:
+      - field: "event_type"
+        operator: "contains"
+        value: "@noise_alerts"
+      - field: "asset_type"
+        operator: "not_equals"
+        value: "critical"
+    action: "silence"
+  
+  - name: "false_positive_sql"
+    conditions:
+      - field: "event_type"
+        operator: "equals"
+        value: "SQL Injection"
+      - field: "payload"
+        operator: "contains"
+        value: "@false_positive_patterns"
+    action: "silence"
+    note: "已知误报模式"
+  
+  - name: "false_positive_xss"
+    conditions:
+      - field: "event_type"
+        operator: "equals"
+        value: "XSS"
+      - field: "payload"
+        operator: "contains"
+        value: "<b>"
+    action: "silence"
+    note: "正常HTML标签"
+
+ip_whitelist:
+  - name: "trusted_internal_10"
+    source_ip: "10.0.0.0/8"
+    action: "reduce_severity"
+    conditions:
+      - field: "status"
+        operator: "equals"
+        value: "failed"
+  
+  - name: "trusted_internal_172"
+    source_ip: "172.16.0.0/12"
+    action: "reduce_severity"
+    conditions:
+      - field: "status"
+        operator: "equals"
+        value: "failed"
+  
+  - name: "test_network"
+    source_ip: "192.168.0.0/16"
+    action: "silence"
+    conditions:
+      - field: "asset_type"
+        operator: "equals"
+        value: "test"
+  
+  - name: "monitor_server"
+    source_ip: "10.0.0.50"
+    dest_ip: "10.0.0.1"
+    event_type: "SQL Injection"
+    action: "silence"
+    note: "监控服务器正常查询"
+  
+  - name: "dev_api_call"
+    source_ip: "10.0.0.20"
+    dest_ip: "10.0.0.3"
+    event_type: "Command Execution"
+    url: "/api/v1/list"
+    action: "silence"
+    note: "开发环境API调用"
+  
+  - name: "false_positive_alert_014"
+    source_ip: "10.0.0.50"
+    dest_ip: "10.0.0.1"
+    event_type: "SQL Injection"
+    action: "silence"
+    note: "测试案例-正常搜索误报"
+  
+  - name: "false_positive_alert_015"
+    source_ip: "192.168.1.5"
+    dest_ip: "10.0.0.2"
+    event_type: "XSS"
+    action: "silence"
+    note: "测试案例-HTML标签误报"
+  
+  - name: "false_positive_alert_016"
+    source_ip: "10.0.0.20"
+    dest_ip: "10.0.0.3"
+    event_type: "Command Execution"
+    action: "silence"
+    note: "测试案例-API调用误报"
+
+url_whitelist:
+  - name: "normal_search"
+    url_pattern: "/search"
+    event_type: "SQL Injection"
+    action: "reduce_severity"
+    note: "搜索页面可能包含特殊字符"
+  
+  - name: "api_endpoint"
+    url_pattern: "/api/*"
+    event_type: "Command Execution"
+    action: "reduce_severity"
+    note: "API端点可能包含命令参数"
