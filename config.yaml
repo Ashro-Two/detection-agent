@@ -1,0 +1,46 @@
+llm:
+  enabled: true
+  model: "deepseek-llm:7b"
+  base_url: "http://localhost:11434/api/generate"
+  timeout: 5
+  max_concurrent: 10
+
+risk_weights:
+  attack_success: 40
+  asset_criticality:
+    critical: 40
+    important: 20
+    normal: 10
+    edge: 5
+  attack_type:
+    command_execution: 30
+    sql_injection: 25
+    file_upload: 25
+    xss: 15
+    brute_force: 20
+    cve_exploit: 20
+    lateral_movement: 30
+    scan: 5
+
+risk_levels:
+  L1_CRITICAL:
+    min_score: 90
+    actions: ["电话", "钉钉", "高优工单"]
+  L2_HIGH:
+    min_score: 70
+    actions: ["钉钉", "邮件"]
+  L3_MEDIUM:
+    min_score: 40
+    actions: ["创建工单"]
+  L4_LOW:
+    min_score: 0
+    actions: ["记录事件"]
+
+aggregation:
+  enabled: true
+  window_minutes: 5
+  max_alerts_per_window: 100
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(levelname)s - %(message)s"
