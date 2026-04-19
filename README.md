@@ -442,15 +442,6 @@ A: 支持的操作符：`equals`, `not_equals`, `contains`, `not_contains`, `>`,
 
 A: 支持。告警结果会缓存，重复告警直接返回缓存结果，TTL可配置。
 
-## 📄 许可证
-
-MIT License
-
-## 📞 联系方式
-
-如有问题或建议，请通过以下方式联系：
-- GitHub Issues
-- 邮件：detection-agent@example.com
 
 ---
 
