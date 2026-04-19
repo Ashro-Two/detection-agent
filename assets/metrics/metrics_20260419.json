@@ -1,0 +1,43 @@
+{
+  "summary": {
+    "total_alerts": 22,
+    "throughput_per_second": 44.4,
+    "avg_processing_time_ms": 0.05,
+    "cache_hit_rate": 0.0,
+    "llm_calls": 13,
+    "llm_success_rate": 0.0,
+    "start_time": "2026-04-19T21:41:01.091630"
+  },
+  "risk_distribution": {
+    "L2_HIGH": 8,
+    "L3_MEDIUM": 5,
+    "L4_LOW": 9
+  },
+  "attack_type_distribution": {
+    "SQL Injection": 5,
+    "Remote Command Execution": 2,
+    "Struts2 RCE": 1,
+    "XSS": 2,
+    "File Upload": 2,
+    "Password Brute Force": 2,
+    "Port Scan": 2,
+    "Command Execution": 1,
+    "SQL Blind Injection": 1,
+    "CVE-2020-13933": 1,
+    "Unknown Exploit": 1,
+    "Directory Scan": 1,
+    "Lateral Movement": 1
+  },
+  "asset_type_distribution": {
+    "normal": 19
+  },
+  "counters": {
+    "cache_hits": 0,
+    "cache_misses": 22,
+    "false_positives": 6,
+    "rule_matches": 7,
+    "llm_calls": 13,
+    "llm_success": 0
+  },
+  "timestamp": "2026-04-19T21:41:01.587366"
+}
