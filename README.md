@@ -6,7 +6,6 @@
 
 一个基于Python、Ollama的智能告警分析检测智能体，具备并行处理、智能缓存、自适应规则、实时监控和本地大模型集成能力。
 
-![Detection Agent Architecture](https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cybersecurity+alert+detection+system+architecture+diagram+with+AI+agent+LLM+integration+professional+tech+illustration&image_size=landscape_16_9)
 
 ## ✨ 功能特性
 
